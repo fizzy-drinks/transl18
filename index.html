@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<meta name='viewport' content='with=device-width, initial-scale=1.0'>
+	<meta name='viewport' content='width=device-width, initial-scale=1.0'>
 	<title>transl18</title>
 	<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css'>
 </head>
@@ -11,20 +11,30 @@
 		<div class='hero-body'>
 			<div class='container'>
 				<h1 class='title is-1'>transl18</h1>
-				<p class='subtitle'>Eu traduzo coisas para 18 línguas e de volta para o português.</p>
+				<p class='subtitle'>Eu traduzo coisas para outras línguas e de volta para o português.</p>
 				<p>Powered by Yandex.Translate.
 					<a href='//translate.yandex.com'>translate.yandex.com</a>
 				</p>
 			</div>
 		</div>
 	</header>
-	<main class='section'>
-		<div class='container'>
-			<label for='trans-text'>Insira um texto em português:</label>
-			<textarea required class='textarea is-primary' id='trans-text'></textarea>
-			<button class='button is-primary' id='go'>Traduzir</button>
-			<output id='status'></output>
-			<div class='container' id='result' style='white-space: pre'></div>
+	<main class='container'>
+		<div class='columns'>
+			<section class='column'>
+				<h2 class='title is-2'>Entrada de texto</h2>
+				<div class='field'>
+					<label for='trans-text'>Insira um texto em português:</label>
+					<textarea rows='10' required class='textarea is-primary' id='trans-text'></textarea>
+				</div>
+				<button class='button is-primary' id='go'>Traduzir</button>
+			</section>
+			<section class='column'>
+				<h2 class='title is-2'>Resultado</h2>
+				<div class='field'>
+					<label for='result' id='status'>&nbsp;</label>
+					<textarea rows='10' readonly class='textarea is-secondary' id='result'></textarea>
+				</div>
+			</section>
 		</div>
 	</main>
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
@@ -83,7 +93,7 @@
 			return transl18do(newText, translateMap.slice(1))
 		}
 
-		document.querySelector('#go').addEventListener('click', async () => {
+		async function submitTranslation () {
 			const currentText = document.querySelector('#trans-text')
 			if (!currentText.reportValidity()) return
 			setStatus('Verificando traduções possíveis...')
@@ -92,6 +102,19 @@
 			const translateMap = transl18map('pt', possibleLanguages)
 			await transl18do(currentText.value, translateMap)
 			setStatus('Feito!')
+		}
+
+		document.querySelector('#go').addEventListener('click', submitTranslation)
+
+		document.querySelector('#result').addEventListener('click', event => {
+			event.target.select()
+			document.execCommand('copy')
+		})
+
+		document.querySelector('#trans-text').addEventListener('keydown', event => {
+			if (event.key !== 'Enter') return
+			if (!event.ctrlKey) return
+			submitTranslation()
 		})
 	</script>
 </body>
