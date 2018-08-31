@@ -7,6 +7,7 @@ This is just a side project made for fun. I don't see nor intend to present a pr
 
 ### v1.0
 
-- [x] Adds double-column layout for larger screens
-- [x] Adds this readme
-- [ ] Adds `Ctrl+Return` shortcut for submitting
+- Adds double-column layout for larger screens
+- Adds this readme
+- Adds autocopy on click
+- Adds `Ctrl+Return` shortcut for submitting

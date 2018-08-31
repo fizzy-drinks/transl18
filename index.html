@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<meta name='viewport' content='with=device-width, initial-scale=1.0'>
+	<meta name='viewport' content='width=device-width, initial-scale=1.0'>
 	<title>transl18</title>
 	<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css'>
 </head>
@@ -32,7 +32,7 @@
 				<h2 class='title is-2'>Resultado</h2>
 				<div class='field'>
 					<label for='result' id='status'>&nbsp;</label>
-					<textarea rows='10' class='textarea is-secondary' id='result'></textarea>
+					<textarea rows='10' readonly class='textarea is-secondary' id='result'></textarea>
 				</div>
 			</section>
 		</div>
@@ -102,6 +102,11 @@
 			const translateMap = transl18map('pt', possibleLanguages)
 			await transl18do(currentText.value, translateMap)
 			setStatus('Feito!')
+		})
+
+		document.querySelector('#result').addEventListener('click', event => {
+			event.target.select()
+			document.execCommand('copy')
 		})
 	</script>
 </body>
