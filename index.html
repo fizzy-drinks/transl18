@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>transl18</title>
+	<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css'>
+</head>
+<body>
+	<header class='hero'>
+		<div class='hero-body'>
+			<div class='container'>
+				<h1 class='title is-1'>transl18</h1>
+				<p class='subtitle'>Eu traduzo coisas para 18 línguas e de volta para o português.</p>
+				<p>Powered by Yandex.Translate.
+					<a href='//translate.yandex.com'>translate.yandex.com</a>
+				</p>
+			</div>
+		</div>
+	</header>
+	<main class='section'>
+		<div class='container'>
+			<label for='trans-text'>Insira um texto em português:</label>
+			<textarea required class='textarea is-primary' id='trans-text'></textarea>
+			<button class='button is-primary' id='go'>Traduzir</button>
+			<output id='status'></output>
+			<div class='container' id='result' style='white-space: pre'></div>
+		</div>
+	</main>
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script>
+		function shuffle(array) {
+		  let
+		  	currentIndex = array.length,
+		  	temporaryValue,
+		  	randomIndex
+
+		  while (0 !== currentIndex) {
+		    randomIndex = Math.floor(Math.random() * currentIndex)
+		    currentIndex -= 1
+
+		    temporaryValue = array[currentIndex]
+		    array[currentIndex] = array[randomIndex]
+		    array[randomIndex] = temporaryValue
+		  }
+
+		  return array
+		}
+
+		const setTextContentFn = selector =>
+			text => document.querySelector(selector).textContent = text
+
+		const setStatus = setTextContentFn('#status')
+		const setResult = setTextContentFn('#result')
+
+		function transl18map(baseLang, possibleLanguages, languagesDone = [], startingLang = null) {
+			if (languagesDone.length > 18) {
+				const lastLang = languagesDone[languagesDone.length - 1].split('-')[1]
+				if (lastLang === startingLang) return languagesDone
+			}
+			const possibleDirections = possibleLanguages.filter(dir => dir.split('-')[0] === baseLang)
+			const nextDir =
+				(languagesDone.length > 18 && possibleDirections.find(dir => dir.split('-')[1] === 'pt'))
+					|| possibleDirections[Math.floor(Math.random() * (possibleDirections.length))]
+			const nextLang = nextDir.split('-')[1]
+			return transl18map(nextLang, possibleLanguages, languagesDone.concat(nextDir), startingLang || baseLang)
+		}
+
+		const baseUrl = 'https://translate.yandex.net/api/v1.5/tr.json'
+		const key = 'trnsl.1.1.20180831T021906Z.d6f430a3cf2054e9.51d85f16c74e0a8c8b926cbbc343e42ef2b050cc'
+
+		async function transl18do(currentText, translateMap) {
+			if (!translateMap.length) {
+				return currentText
+			}
+
+ 			setStatus(`Traduzindo ${translateMap[0]} (${translateMap.length} restantes)...`)
+			const { data: response } =
+				await axios.get(`${baseUrl}/translate?key=${key}&text=${encodeURIComponent(currentText)}&lang=${translateMap[0]}`)
+
+			const newText = response.text[0]
+			setResult(newText)
+			return transl18do(newText, translateMap.slice(1))
+		}
+
+		document.querySelector('#go').addEventListener('click', async () => {
+			const currentText = document.querySelector('#trans-text')
+			if (!currentText.reportValidity()) return
+			setStatus('Verificando traduções possíveis...')
+			const { data: response } = await axios.get(`${baseUrl}/getLangs?key=${key}`)
+			const possibleLanguages = response.dirs
+			const translateMap = transl18map('pt', possibleLanguages)
+			await transl18do(currentText.value, translateMap)
+			setStatus('Feito!')
+		})
+	</script>
+</body>
+</html>
