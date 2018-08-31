@@ -93,7 +93,7 @@
 			return transl18do(newText, translateMap.slice(1))
 		}
 
-		document.querySelector('#go').addEventListener('click', async () => {
+		async function submitTranslation () {
 			const currentText = document.querySelector('#trans-text')
 			if (!currentText.reportValidity()) return
 			setStatus('Verificando traduções possíveis...')
@@ -102,11 +102,19 @@
 			const translateMap = transl18map('pt', possibleLanguages)
 			await transl18do(currentText.value, translateMap)
 			setStatus('Feito!')
-		})
+		}
+
+		document.querySelector('#go').addEventListener('click', submitTranslation)
 
 		document.querySelector('#result').addEventListener('click', event => {
 			event.target.select()
 			document.execCommand('copy')
+		})
+
+		document.querySelector('#trans-text').addEventListener('keydown', event => {
+			if (event.key !== 'Enter') return
+			if (!event.ctrlKey) return
+			submitTranslation()
 		})
 	</script>
 </body>
