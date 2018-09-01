@@ -6,37 +6,40 @@
 	<title>transl18</title>
 	<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css'>
 </head>
-<body>
+<body class='container'>
 	<header class='hero'>
 		<div class='hero-body'>
-			<div class='container'>
-				<h1 class='title is-1'>transl18</h1>
-				<p class='subtitle'>Eu traduzo coisas para outras línguas e de volta para o português.</p>
-				<p>Powered by Yandex.Translate.
-					<a href='//translate.yandex.com'>translate.yandex.com</a>
-				</p>
-			</div>
+			<h1 class='title is-1'>transl18</h1>
+			<p class='subtitle'>Eu traduzo coisas para outras línguas e de volta para o português.</p>
 		</div>
 	</header>
-	<main class='container'>
-		<div class='columns'>
-			<section class='column'>
-				<h2 class='title is-2'>Entrada de texto</h2>
-				<div class='field'>
-					<label for='trans-text'>Insira um texto em português:</label>
-					<textarea rows='10' required class='textarea is-primary' id='trans-text'></textarea>
-				</div>
-				<button class='button is-primary' id='go'>Traduzir</button>
-			</section>
-			<section class='column'>
-				<h2 class='title is-2'>Resultado</h2>
-				<div class='field'>
-					<label for='result' id='status'>&nbsp;</label>
-					<textarea rows='10' readonly class='textarea is-secondary' id='result'></textarea>
-				</div>
-			</section>
-		</div>
+	<main class='columns'>
+		<section class='column'>
+			<h2 class='title is-2'>Entrada de texto</h2>
+			<div class='field'>
+				<label for='trans-text'>Insira um texto em português:</label>
+				<textarea rows='10' required class='textarea is-primary' id='trans-text'></textarea>
+			</div>
+			<button class='button is-primary' id='go'>Traduzir</button>
+		</section>
+		<section class='column'>
+			<h2 class='title is-2'>Resultado</h2>
+			<div class='field'>
+				<label for='result' id='status'>&nbsp;</label>
+				<textarea rows='10' readonly class='textarea is-secondary' id='result'></textarea>
+			</div>
+		</section>
 	</main>
+	<footer class='hero'>
+		<div class='hero-body'>
+			<p>&copy; 2018 Gabriel Chiconi. Check out
+				<a href='//github.com/gabrielchiconi/transl18'>this app's repository</a>.
+			</p>
+			<p>Powered by Yandex.Translate.
+				<a href='//translate.yandex.com'>translate.yandex.com</a>
+			</p>
+		</div>
+	</footer>
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 	<script>
 		function shuffle(array) {
