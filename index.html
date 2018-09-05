@@ -5,28 +5,39 @@
 	<meta name='viewport' content='width=device-width, initial-scale=1.0'>
 	<title>transl18</title>
 	<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css'>
+	<style>
+	.float-r {
+		float: right;
+	}
+	</style>
 </head>
 <body class='container'>
 	<header class='hero'>
 		<div class='hero-body'>
+			<aside class='float-r' id='locale-switch'>
+				<small>
+					<button type='button' id='locale-pt' class='locale button is-secondary is-active'>Português</button>
+					<button type='button' id='locale-en' class='locale button is-secondary'>English</button>
+				</small>
+			</aside>
 			<h1 class='title is-1'>transl18</h1>
-			<p class='subtitle'>Eu traduzo coisas para outras línguas e de volta para o português.</p>
+			<p class='subtitle' id='app-description'></p>
 		</div>
 	</header>
 	<main class='columns'>
 		<section class='column'>
-			<h2 class='title is-2'>Entrada de texto</h2>
+			<h2 class='title is-2' id='title-text-input'></h2>
 			<div class='field'>
-				<label for='trans-text'>Insira um texto em português:</label>
+				<label for='trans-text' id='label-text-input'></label>
 				<textarea rows='10' required class='textarea is-primary' id='trans-text'></textarea>
 			</div>
-			<button class='button is-primary' id='go'>Traduzir</button>
+			<button class='button is-primary' id='submit-text-input'></button>
 		</section>
 		<section class='column'>
-			<h2 class='title is-2'>Resultado</h2>
+			<h2 class='title is-2' id='title-result'></h2>
 			<div class='field'>
-				<label for='result' id='status'>&nbsp;</label>
-				<textarea rows='10' readonly class='textarea is-secondary' id='result'></textarea>
+				<label for='result' id='label-result'>&nbsp;</label>
+				<textarea rows='10' readonly class='textarea is-secondary' id='text-result'></textarea>
 			</div>
 		</section>
 	</main>
@@ -41,6 +52,61 @@
 		</div>
 	</footer>
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script>
+		const localizations = {
+			'pt-br': {
+				'app-description': 'Eu traduzo coisas para outras línguas e de volta para o português.',
+				'title-text-input': 'Entrada de texto',
+				'label-text-input': 'Insira um texto em português:',
+				'submit-text-input': 'Traduzir',
+				'title-result': 'Resultado',
+				'message-language-fetch': 'Verificando traduções possíveis...',
+				'message-done': 'Feito!',
+				'message-translating': (direction, remaining) =>
+					`Traduzindo ${direction} (${remaining} restantes)...`
+			},
+			'en-us': {
+				'app-description': 'I translate things to other languages and back to Portuguese.',
+				'title-text-input': 'Input',
+				'label-text-input': 'Insert Portuguese text:',
+				'submit-text-input': 'Translate',
+				'title-result': 'Result',
+				'message-language-fetch': 'Checking possible translations...',
+				'message-done': 'Done!',
+				'message-translating': (direction, remaining) =>
+					`Translating ${direction} (${remaining} remaining)...`
+			},
+			currentLocale: null,
+			activateLocale (localeId) {
+				const locale = this[localeId]
+				const $ = document.querySelector.bind(document)
+				$('#app-description').textContent = locale['app-description']
+				$('#title-text-input').textContent = locale['title-text-input']
+				$('#label-text-input').textContent = locale['label-text-input']
+				$('#submit-text-input').textContent = locale['submit-text-input']
+				$('#title-result').textContent = locale['title-result']
+				this.currentLocale = localeId
+			},
+			getCurrentLocale () {
+				return this[this.currentLocale]
+			}
+		}
+
+		localizations.activateLocale('pt-br')
+
+		document.querySelector('#locale-pt').addEventListener('click', event => {
+			document.querySelectorAll('.locale').forEach(btn =>
+				btn.classList.remove('is-active'))
+			event.target.classList.add('is-active')
+			localizations.activateLocale('pt-br')
+		})
+		document.querySelector('#locale-en').addEventListener('click', event => {
+			document.querySelectorAll('.locale').forEach(btn =>
+				btn.classList.remove('is-active'))
+			event.target.classList.add('is-active')
+			localizations.activateLocale('en-us')
+		})
+	</script>
 	<script>
 		function shuffle(array) {
 		  let
@@ -63,8 +129,8 @@
 		const setTextContentFn = selector =>
 			text => document.querySelector(selector).textContent = text
 
-		const setStatus = setTextContentFn('#status')
-		const setResult = setTextContentFn('#result')
+		const setStatus = setTextContentFn('#label-result')
+		const setResult = setTextContentFn('#text-result')
 
 		function transl18map(baseLang, possibleLanguages, languagesDone = [], startingLang = null) {
 			if (languagesDone.length > 18) {
@@ -87,7 +153,7 @@
 				return currentText
 			}
 
- 			setStatus(`Traduzindo ${translateMap[0]} (${translateMap.length} restantes)...`)
+ 			setStatus(localizations.getCurrentLocale()['message-translating'](translateMap[0], translateMap.length))
 			const { data: response } =
 				await axios.get(`${baseUrl}/translate?key=${key}&text=${encodeURIComponent(currentText)}&lang=${translateMap[0]}`)
 
@@ -99,17 +165,17 @@
 		async function submitTranslation () {
 			const currentText = document.querySelector('#trans-text')
 			if (!currentText.reportValidity()) return
-			setStatus('Verificando traduções possíveis...')
+			setStatus(localizations.getCurrentLocale()['message-language-fetch'])
 			const { data: response } = await axios.get(`${baseUrl}/getLangs?key=${key}`)
 			const possibleLanguages = response.dirs
 			const translateMap = transl18map('pt', possibleLanguages)
 			await transl18do(currentText.value, translateMap)
-			setStatus('Feito!')
+			setStatus(localizations.getCurrentLocale()['message-done'])
 		}
 
-		document.querySelector('#go').addEventListener('click', submitTranslation)
+		document.querySelector('#submit-text-input').addEventListener('click', submitTranslation)
 
-		document.querySelector('#result').addEventListener('click', event => {
+		document.querySelector('#text-result').addEventListener('click', event => {
 			event.target.select()
 			document.execCommand('copy')
 		})
