@@ -29,6 +29,7 @@
 			<h2 class='title is-2' id='title-text-input'></h2>
 			<div class='field'>
 				<label for='trans-text' id='label-text-input'></label>
+				<select id='trans-lang'></select>
 				<textarea rows='10' required class='textarea is-primary' id='trans-text'></textarea>
 			</div>
 			<button class='button is-primary' id='submit-text-input'></button>
@@ -57,7 +58,7 @@
 			'pt-br': {
 				'app-description': 'Eu traduzo coisas para outras línguas e de volta para o português.',
 				'title-text-input': 'Entrada de texto',
-				'label-text-input': 'Insira um texto em português:',
+				'label-text-input': 'Insira um texto em',
 				'submit-text-input': 'Traduzir',
 				'title-result': 'Resultado',
 				'message-language-fetch': 'Verificando traduções possíveis...',
@@ -68,7 +69,7 @@
 			'en-us': {
 				'app-description': 'I translate things to other languages and back to Portuguese.',
 				'title-text-input': 'Input',
-				'label-text-input': 'Insert Portuguese text:',
+				'label-text-input': 'Insert text in',
 				'submit-text-input': 'Translate',
 				'title-result': 'Result',
 				'message-language-fetch': 'Checking possible translations...',
@@ -162,13 +163,28 @@
 			return transl18do(newText, translateMap.slice(1))
 		}
 
+		const translator = {
+			possibleLanguages: [],
+			async getPossibleLanguages () {
+				const { data: response } = await axios.get(`${baseUrl}/getLangs?key=${key}`)
+				this.possibleLanguages = response.dirs
+				this.possibleLanguages
+					.map(dir => dir.split('-')[0])
+					.filter((lang, i, all) => all.indexOf(lang) === i)
+					.forEach(lang => {
+						const opt = document.createElement('option')
+						opt.textContent = lang
+						document.querySelector('#trans-lang').appendChild(opt)
+					})
+			}
+		}
+
 		async function submitTranslation () {
 			const currentText = document.querySelector('#trans-text')
-			if (!currentText.reportValidity()) return
+			const currentLanguage = document.querySelector('#trans-lang')
+			if (!currentText.reportValidity() || !currentLanguage.reportValidity()) return
 			setStatus(localizations.getCurrentLocale()['message-language-fetch'])
-			const { data: response } = await axios.get(`${baseUrl}/getLangs?key=${key}`)
-			const possibleLanguages = response.dirs
-			const translateMap = transl18map('pt', possibleLanguages)
+			const translateMap = transl18map(currentLanguage.value, translator.possibleLanguages)
 			await transl18do(currentText.value, translateMap)
 			setStatus(localizations.getCurrentLocale()['message-done'])
 		}
@@ -184,6 +200,10 @@
 			if (event.key !== 'Enter') return
 			if (!event.ctrlKey) return
 			submitTranslation()
+		})
+
+		document.addEventListener('DOMContentLoaded', () => {
+			translator.getPossibleLanguages()
 		})
 	</script>
 </body>
