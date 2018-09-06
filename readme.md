@@ -7,6 +7,13 @@ You can check it out live at [GitHub Pages](https://gabrielchiconi.github.io/tra
 
 ## Changelog
 
+### v1.1
+
+- Adds English locale to the page
+- Now allows different base languages than Portuguese to translate from and to
+- Now shows snack bars with tips for the users
+- Adds a link to the repository in the app
+
 ### v1.0
 
 - Adds double-column layout for larger screens
