@@ -7,6 +7,11 @@ You can check it out live at [GitHub Pages](https://gabrielchiconi.github.io/tra
 
 ## Changelog
 
+### v1.1.1
+
+- Fixes infinite loop on languages that are not Portuguese
+- Updates subtitle to match new functionality
+
 ### v1.1
 
 - Adds English locale to the page
