@@ -178,7 +178,7 @@
 			}
 			const possibleDirections = possibleLanguages.filter(dir => dir.split('-')[0] === baseLang)
 			const nextDir =
-				(languagesDone.length > 18 && possibleDirections.find(dir => dir.split('-')[1] === 'pt'))
+				(languagesDone.length > 18 && possibleDirections.find(dir => dir.split('-')[1] === startingLang))
 					|| possibleDirections[Math.floor(Math.random() * (possibleDirections.length))]
 			const nextLang = nextDir.split('-')[1]
 			return transl18map(nextLang, possibleLanguages, languagesDone.concat(nextDir), startingLang || baseLang)
