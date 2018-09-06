@@ -9,9 +9,33 @@
 	.float-r {
 		float: right;
 	}
+	.snack-bar {
+    position: fixed;
+    bottom: 1em;
+    left: 50%;
+    transform: translateX(-50%);
+    display: inline-block;
+    background: #000A;
+    color: #FFF;
+    font-size: .9em;
+    text-align: center;
+    padding: .125em 1em;
+    border-radius: 2px;
+    box-shadow: 1px 1px 5px #aaa;
+    min-width: 50%;
+    z-index: 1;
+    visibility: hidden;
+    opacity: 0;
+    transition: all 300ms ease;
+	}
+	.snack-bar.active {
+		opacity: 1;
+		visibility: visible;
+	}
 	</style>
 </head>
 <body class='container'>
+	<div class='snack-bar' id='warning-message'></div>
 	<header class='hero'>
 		<div class='hero-body'>
 			<aside class='float-r' id='locale-switch'>
@@ -54,28 +78,42 @@
 	</footer>
 	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 	<script>
+		function snackbarAlert(message) {
+			const snack = document.querySelector('#warning-message')
+			snack.textContent = message
+			snack.classList.add('active')
+			window.setTimeout(() => snack.classList.remove('active'), 5000)
+		}
+	</script>
+	<script>
 		const localizations = {
 			'pt-br': {
 				'app-description': 'Eu traduzo coisas para outras línguas e de volta para o português.',
 				'title-text-input': 'Entrada de texto',
 				'label-text-input': 'Insira um texto em',
+				'snack-text-input': 'Experimente inserir algum texto na caixa da direita!',
 				'submit-text-input': 'Traduzir',
 				'title-result': 'Resultado',
 				'message-language-fetch': 'Verificando traduções possíveis...',
 				'message-done': 'Feito!',
 				'message-translating': (direction, remaining) =>
-					`Traduzindo ${direction} (${remaining} restantes)...`
+					`Traduzindo ${direction} (${remaining} restantes)...`,
+				'autocopy-tip': 'Texto copiado!',
+				'ctrl-enter-tip': 'Pressione Ctrl+Enter para iniciar a tradução'
 			},
 			'en-us': {
 				'app-description': 'I translate things to other languages and back to Portuguese.',
 				'title-text-input': 'Input',
 				'label-text-input': 'Insert text in',
+				'snack-text-input': 'Try inserting any text in the box to the right!',
 				'submit-text-input': 'Translate',
 				'title-result': 'Result',
 				'message-language-fetch': 'Checking possible translations...',
 				'message-done': 'Done!',
 				'message-translating': (direction, remaining) =>
-					`Translating ${direction} (${remaining} remaining)...`
+					`Translating ${direction} (${remaining} remaining)...`,
+				'autocopy-tip': 'The text has been copied!',
+				'ctrl-enter-tip': 'Press Ctrl+Enter to start translating'
 			},
 			currentLocale: null,
 			activateLocale (localeId) {
@@ -182,7 +220,9 @@
 		async function submitTranslation () {
 			const currentText = document.querySelector('#trans-text')
 			const currentLanguage = document.querySelector('#trans-lang')
-			if (!currentText.reportValidity() || !currentLanguage.reportValidity()) return
+			if (!currentText.reportValidity() || !currentLanguage.reportValidity()) {
+				return window.snackbarAlert(localizations.getCurrentLocale()['snack-text-input'])
+			}
 			setStatus(localizations.getCurrentLocale()['message-language-fetch'])
 			const translateMap = transl18map(currentLanguage.value, translator.possibleLanguages)
 			await transl18do(currentText.value, translateMap)
@@ -194,6 +234,11 @@
 		document.querySelector('#text-result').addEventListener('click', event => {
 			event.target.select()
 			document.execCommand('copy')
+			window.snackbarAlert(localizations.getCurrentLocale()['autocopy-tip'])
+		})
+
+		document.querySelector('#trans-text').addEventListener('focus', () => {
+			window.snackbarAlert(localizations.getCurrentLocale()['ctrl-enter-tip'])
 		})
 
 		document.querySelector('#trans-text').addEventListener('keydown', event => {
